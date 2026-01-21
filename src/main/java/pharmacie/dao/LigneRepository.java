@@ -3,6 +3,8 @@ package pharmacie.dao;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import pharmacie.entity.Ligne;
 
@@ -21,4 +23,15 @@ public interface LigneRepository extends JpaRepository<Ligne, Integer> {
      * @return la liste des lignes contenant ce médicament
      */
     List<Ligne> findByMedicamentReference(Integer medicamentId);
+
+    /**
+     * Calcule le nombre total d'articles commandés par un dispensaire
+     * pour les commandes déjà envoyées (envoyele IS NOT NULL)
+     * @param dispensaireId l'identifiant du dispensaire
+     * @return le nombre total d'articles commandés et envoyés
+     */
+    @Query("SELECT SUM(l.quantite) FROM Ligne l " +
+           "WHERE l.commande.dispensaire.id = :dispensaireId " +
+           "AND l.commande.envoyele IS NOT NULL")
+    Integer countArticlesCommandesByDispensaire(@Param("dispensaireId") Integer dispensaireId);
 }
