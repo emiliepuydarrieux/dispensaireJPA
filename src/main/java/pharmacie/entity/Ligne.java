@@ -5,7 +5,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -23,20 +22,18 @@ public class Ligne {
     @Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Setter(AccessLevel.NONE) // la clé est autogénérée par la BD, On ne veut pas de "setter"
-	private Integer ID = null;
+	private Integer id = null;
 
     @NonNull
     @ManyToOne
-    private Medicament medicament_reference;
+    private Medicament medicament;
 
     @PositiveOrZero
     private int quantite = 0;
 
+    @NonNull
     @ManyToOne
-    private Commande commande_numero;
-    
-    public Ligne(Commande commande_numero) {
-        this.commande_numero = commande_numero;
-    }
+    private Commande commande;
 }
+
 

@@ -18,6 +18,12 @@ public class Dispensaire {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Setter(AccessLevel.NONE) // la clé est autogénérée par la BD, On ne veut pas de "setter"
+    private Integer id;
+
+    @NonNull
+    @Size(max = 255)
+    @Column(length = 255, unique = true)
+    @NotBlank // pour éviter les libellés vides
     private String code;
 
     @NonNull
@@ -80,9 +86,7 @@ public class Dispensaire {
     @Column(length = 100)
     private String fonction;
 
-
-
-
-
-    
+    @ToString.Exclude
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "dispensaire")
+    private List<Commande> commandes = new LinkedList<>();
 }

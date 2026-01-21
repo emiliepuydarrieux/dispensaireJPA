@@ -31,3 +31,19 @@ INSERT INTO MEDICAMENT (NOM, CATEGORIE_CODE, QUANTITE_PAR_UNITE, PRIX_UNITAIRE, 
 INSERT INTO MEDICAMENT (NOM, CATEGORIE_CODE, QUANTITE_PAR_UNITE, PRIX_UNITAIRE, UNITES_EN_STOCK, UNITES_COMMANDEES, NIVEAU_DE_REAPPRO, INDISPONIBLE, imageURL) VALUES
 ('Lévofloxacine 500mg', 3, 'Boîte de 7 comprimés', 15.80, 160, 0, 18, true, 'https://images.unsplash.com/photo-1628771065518-0d82f1938462?w=400'),
 ('Clindamycine 300mg', 3, 'Boîte de 16 gélules', 13.20, 140, 0, 16, true, 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400');
+
+-- Insertion des dispensaires
+INSERT INTO DISPENSAIRE (ID, CODE, NOM, ADRESSE, VILLE, CODE_POSTAL, PAYS, REGION, FAX, TELEPHONE, CONTACT, FONCTION) VALUES
+(DEFAULT, 'D001', 'Hôpital Central', '123 Avenue de la Paix', 'Paris', '75001', 'France', 'Île-de-France', '01-23-45-67', '01-23-45-68', 'Dr. Martin Dupont', 'Directeur'),
+(DEFAULT, 'D002', 'Clinique Saint-Louis', '456 Rue de la Santé', 'Lyon', '69001', 'France', 'Auvergne-Rhône-Alpes', '04-56-78-90', '04-56-78-91', 'Dr. Sophie Bernard', 'Chef de Pharmacie'),
+(DEFAULT, 'D003', 'Centre Médical de Provence', '789 Boulevard du Soleil', 'Marseille', '13001', 'France', 'Provence-Alpes-Côte d''Azur', '04-91-23-45', '04-91-23-46', 'Dr. Pierre Moreau', 'Pharmacien'),
+(DEFAULT, 'D004', 'Hôpital de Bordeaux', '321 Chemin des Vignes', 'Bordeaux', '33000', 'France', 'Nouvelle-Aquitaine', '05-12-34-56', '05-12-34-57', 'Dr. Marie Laurent', 'Directrice'),
+(DEFAULT, 'D005', 'Dispensaire du Nord', '654 Rue du Commerce', 'Lille', '59000', 'France', 'Hauts-de-France', '03-98-76-54', '03-98-76-55', 'Dr. Jean Durand', 'Responsable');
+
+-- Insertion des commandes
+-- Les dates sont en format DATE (YYYY-MM-DD)
+-- (Pas d'insertion directe ici - utiliser l'application pour créer les commandes)
+
+-- Insertion des lignes de commande
+-- Chaque ligne associe un médicament à une commande avec une quantité
+-- (Pas d'insertion directe ici - utiliser l'application pour créer les lignes)

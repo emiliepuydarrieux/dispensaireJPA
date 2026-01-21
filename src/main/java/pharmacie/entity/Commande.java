@@ -8,6 +8,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.NotNull;
 
 import lombok.*;
 
@@ -22,48 +23,54 @@ public class Commande {
 	private Integer numero = null;
 
     @NonNull
-    @Size(max = 255)
-    @Column(length = 255)
+    @NotNull
+    @Column(name = "SAISIELE")
+    private Date saisiele;
+
+    @Column(name = "ENVOYELE")
     private Date envoyele;
 
-
-    @ToString.Exclude
-	@PositiveOrZero
+    @PositiveOrZero
 	private int port = 0;
 
-    @ToString.Exclude
-	@PositiveOrZero
+    @PositiveOrZero
 	private int remise = 0;
 
-    @ToString.Exclude
-	@PositiveOrZero
-	private Date saisiele;
+    @ManyToOne
+	private Dispensaire dispensaire;
 
-    @ToString.Exclude
-	private Dispensaire dispensaire_code;
-
-    @ToString.Exclude
+	@NotBlank
+	@Size(max = 255)
+	@Column(length = 255)
 	private String code_postal;
 
-    @ToString.Exclude
+	@NotBlank
+	@Size(max = 100)
+	@Column(length = 100)
 	private String pays;
 
-
-    @ToString.Exclude
+	@NotBlank
+	@Size(max = 100)
+	@Column(length = 100)
 	private String ville;
 
-
-    @ToString.Exclude
+	@NotBlank
+	@Size(max = 255)
+	@Column(length = 255)
 	private String adresse;
 
-    @ToString.Exclude
+	@NotBlank
+	@Size(max = 100)
+	@Column(length = 100)
 	private String region;
 
-    @ToString.Exclude
+	@NotBlank
+	@Size(max = 255)
+	@Column(length = 255)
 	private String destinataire;
 
-   
-
-
-    
+    @ToString.Exclude
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "commande")
+    private List<Ligne> lignes = new LinkedList<>();
 }
+
