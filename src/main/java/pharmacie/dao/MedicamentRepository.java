@@ -36,4 +36,18 @@ public interface MedicamentRepository extends JpaRepository<Medicament, Integer>
            "AND m.indisponible = false " +
            "AND m.unitesEnStock >= m.unitesCommandees")
     List<Medicament> findMedicamentsDisponiblesALaCommande(@Param("categorieCode") Integer categorieCode);
+
+    /**
+     * Calcule le nombre d'unités commandées pour chaque médicament d'une catégorie
+     * (diapositive 51 du support de cours)
+     * @param codeCategorie la catégorie à traiter
+     * @return le nombre d'unités commandées pour chaque médicament, 
+     *         sous la forme d'une liste de projections UnitesParMedicament
+     */
+    @Query("SELECT ligne.medicament.nom as nom, SUM(ligne.quantite) AS unites " +
+           "FROM Ligne ligne " +
+           "WHERE ligne.medicament.categorie.code = :codeCategorie " +
+           "GROUP BY ligne.medicament.nom")
+    List<UnitesParMedicament> medicamentsVendusPour(@Param("codeCategorie") Integer codeCategorie);
 }
+

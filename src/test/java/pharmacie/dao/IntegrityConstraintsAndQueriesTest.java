@@ -5,6 +5,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
@@ -278,7 +279,57 @@ public class IntegrityConstraintsAndQueriesTest {
         assertFalse(medsDisponibles.stream().anyMatch(m -> m.getNom().equals("Med Stock Insuffisant")));
     }
 
-    // ==================== MÉTHODES UTILITAIRES ====================
+    @Test
+    public void testMedicamentsVendusPour() {
+        // Créer plusieurs médicaments dans la même catégorie
+        Medicament med1 = new Medicament();
+        med1.setNom("Paracétamol");
+        med1.setCategorie(testCategorie);
+        med1.setIndisponible(false);
+        medicamentRepository.save(med1);
+
+        Medicament med2 = new Medicament();
+        med2.setNom("Ibuprofène");
+        med2.setCategorie(testCategorie);
+        med2.setIndisponible(false);
+        medicamentRepository.save(med2);
+
+        // Créer une commande avec des lignes
+        Commande cmd = createTestCommande(testDispensaire);
+        commandeRepository.save(cmd);
+
+        Ligne ligne1 = new Ligne();
+        ligne1.setCommande(cmd);
+        ligne1.setMedicament(med1);
+        ligne1.setQuantite(50);
+        ligneRepository.save(ligne1);
+
+        Ligne ligne2 = new Ligne();
+        ligne2.setCommande(cmd);
+        ligne2.setMedicament(med1); // Même médicament
+        ligne2.setQuantite(30);
+        ligneRepository.save(ligne2);
+
+        Ligne ligne3 = new Ligne();
+        ligne3.setCommande(cmd);
+        ligne3.setMedicament(med2);
+        ligne3.setQuantite(20);
+        ligneRepository.save(ligne3);
+
+        // Récupérer les unités vendues par médicament (projection)
+        List<UnitesParMedicament> results = medicamentRepository.medicamentsVendusPour(testCategorie.getCode());
+
+        assertFalse(results.isEmpty(), "Il doit avoir des résultats");
+        
+        // Vérifier que les totaux sont corrects
+        UnitesParMedicament paracetamol = results.stream()
+            .filter(r -> r.getNom().equals("Paracétamol"))
+            .findFirst()
+            .orElse(null);
+        
+        assertNotNull(paracetamol, "Paracétamol doit être dans les résultats");
+        assertEquals(80L, paracetamol.getUnites(), "Paracétamol doit avoir 80 unités (50+30)");
+    }    // ==================== MÉTHODES UTILITAIRES ====================
 
     private Dispensaire createTestDispensaire() {
         Dispensaire disp = new Dispensaire();
