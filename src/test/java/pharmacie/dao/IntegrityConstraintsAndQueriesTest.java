@@ -48,6 +48,126 @@ public class IntegrityConstraintsAndQueriesTest {
 
 
 
+    // ==================== CONTRAINTES D'INTÉGRITÉ ====================
+
+    @Test
+    public void testMedicamentRequiresCategory() {
+        // Un médicament doit avoir une catégorie (diapositive 64)
+        Medicament med = new Medicament();
+        med.setNom("Med sans catégorie");
+        // Pas de setCategorie() - doit causer une erreur
+        
+        // Cette assertion devrait échouer car categorie est @NonNull
+        try {
+            medicamentRepository.save(med);
+            // Si on arrive ici, c'est qu'il n'y a pas de vérification
+            assertTrue(false, "Le medicament aurait dû avoir besoin d'une catégorie");
+        } catch (Exception e) {
+            // C'est attendu - la validation ou la BD rejette l'insertion
+            assertTrue(true);
+        }
+    }
+
+    @Test
+    public void testCanDeleteEmptyCategory() {
+        // On peut supprimer une catégorie qui n'a pas de médicaments
+        Categorie emptyCategory = new Categorie();
+        emptyCategory.setLibelle("Catégorie Vide");
+        categorieRepository.save(emptyCategory);
+        Integer categoryId = emptyCategory.getCode();
+
+        // Supprimer la catégorie
+        categorieRepository.deleteById(categoryId);
+
+        // Vérifier qu'elle est bien supprimée
+        assertTrue(categorieRepository.findById(categoryId).isEmpty());
+    }
+
+    @Test
+    public void testCannotDeleteCategoryWithMedicaments() {
+        // On ne peut pas supprimer une catégorie qui a des médicaments
+        Categorie catWithMeds = new Categorie();
+        catWithMeds.setLibelle("Catégorie avec médicaments");
+        categorieRepository.save(catWithMeds);
+
+        // Ajouter un médicament à cette catégorie
+        Medicament med = new Medicament();
+        med.setNom("Med dans catégorie");
+        med.setCategorie(catWithMeds);
+        med.setIndisponible(false);
+        med.setUnitesEnStock(50);
+        med.setUnitesCommandees(10);
+        medicamentRepository.save(med);
+
+        // Essayer de supprimer la catégorie - doit échouer
+        try {
+            categorieRepository.deleteById(catWithMeds.getCode());
+            // Forcer un flush pour voir la contrainte
+            categorieRepository.flush();
+            assertTrue(false, "La catégorie aurait dû ne pas pouvoir être supprimée");
+        } catch (Exception e) {
+            // C'est attendu - la BD rejette la suppression
+            assertTrue(true);
+        }
+    }
+
+    @Test
+    public void testDeleteCommandeDeleteLines() {
+        // Quand on supprime une commande, on supprime ses lignes (cascade)
+        Commande cmd = createTestCommande(testDispensaire);
+        commandeRepository.save(cmd);
+
+        Medicament med = createTestMedicament(testCategorie);
+        medicamentRepository.save(med);
+
+        // Ajouter des lignes à la commande
+        Ligne ligne1 = new Ligne();
+        ligne1.setCommande(cmd);
+        ligne1.setMedicament(med);
+        ligne1.setQuantite(10);
+        ligneRepository.save(ligne1);
+
+        Ligne ligne2 = new Ligne();
+        ligne2.setCommande(cmd);
+        ligne2.setMedicament(med);
+        ligne2.setQuantite(20);
+        ligneRepository.save(ligne2);
+
+        Integer commandeId = cmd.getNumero();
+        long initialLineCount = ligneRepository.count();
+        assertEquals(2, initialLineCount, "Doit avoir 2 lignes");
+
+        // Supprimer la commande
+        commandeRepository.deleteById(commandeId);
+
+        // Vérifier que les lignes ont aussi été supprimées (cascade)
+        long finalLineCount = ligneRepository.count();
+        assertEquals(0, finalLineCount, "Les lignes auraient dû être supprimées");
+    }
+
+    @Test
+    public void testDeleteDispensaireDeleteCommandes() {
+        // Quand on supprime un dispensaire, on supprime ses commandes (cascade)
+        Commande cmd1 = createTestCommande(testDispensaire);
+        commandeRepository.save(cmd1);
+
+        Commande cmd2 = createTestCommande(testDispensaire);
+        commandeRepository.save(cmd2);
+
+        Integer dispensaireId = testDispensaire.getId();
+        List<Commande> initialCommandes = commandeRepository.findAll();
+        int initialSize = initialCommandes.size();
+        assertTrue(initialSize >= 2, "Doit avoir au moins 2 commandes");
+
+        // Supprimer le dispensaire
+        dispensaireRepository.deleteById(dispensaireId);
+
+        // Vérifier que les commandes ont aussi été supprimées (cascade)
+        List<Commande> finalCommandes = commandeRepository.findAll();
+        int finalSize = finalCommandes.size();
+        assertEquals(initialSize - 2, finalSize, "Les commandes auraient dû être supprimées");
+    }
+
     // ==================== REQUÊTES PERSONNALISÉES ====================
 
     @Test
